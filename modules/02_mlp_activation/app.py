@@ -38,7 +38,7 @@ noch nur eine Gerade.
 # Sidebar: Regler
 # ---------------------------------------------------------------------------
 st.sidebar.header("⚙️ Werkstoff-Parameter")
-n_points = st.sidebar.slider("Anzahl Messpunkte", 50, 500, 200, step=10)
+n_points = st.sidebar.slider("Anzahl Messpunkte", 5, 500, 200, step=10)
 noise_std = st.sidebar.slider("Messrauschen [MPa]", 0.0, 50.0, 15.0, step=1.0)
 E = st.sidebar.slider("E-Modul [MPa]", 100_000, 250_000, 210_000, step=5_000)
 hardening_modulus = st.sidebar.slider("Verfestigungsmodul H [MPa]", 500, 5_000, 2_000, step=100)
