@@ -76,7 +76,7 @@ metrics_placeholder = st.empty()
 result_placeholder = st.empty()
 
 
-def draw(gd_point=None, sa_point=None, gd_hist=None, sa_hist=None, step_label=""):
+def draw(gd_point=None, sa_point=None, gd_hist=None, sa_hist=None, sa_best=None, step_label=""):
     fig, axes = plt.subplots(1, 3, figsize=(18, 5.2))
 
     # --- Panel 1: Wöhler-Kurve (log-log) ---
@@ -88,7 +88,12 @@ def draw(gd_point=None, sa_point=None, gd_hist=None, sa_hist=None, step_label=""
         ax.loglog(ds_line, n_line, color="crimson", linewidth=2, label=f"GD (k={gd_point['k']:.2f})")
     if sa_point is not None:
         n_line = np.exp(sa_point["logC"] + sa_point["k"] * np.log(ds_line))
-        ax.loglog(ds_line, n_line, color="royalblue", linewidth=2, label=f"SA (k={sa_point['k']:.2f})")
+        ax.loglog(ds_line, n_line, color="royalblue", linewidth=1.5, alpha=0.5, linestyle=":",
+                   label=f"SA aktuell (k={sa_point['k']:.2f})")
+    if sa_best is not None:
+        n_line = np.exp(sa_best["logC"] + sa_best["k"] * np.log(ds_line))
+        ax.loglog(ds_line, n_line, color="royalblue", linewidth=2,
+                   label=f"SA bestes (k={sa_best['k']:.2f})")
     ax.set_xlabel("Δσ [MPa] (log)")
     ax.set_ylabel("N [Lastwechsel] (log)")
     ax.set_title("Wöhlerlinie: Daten vs. Fits")
@@ -103,7 +108,10 @@ def draw(gd_point=None, sa_point=None, gd_hist=None, sa_hist=None, step_label=""
         ax2.plot(gd_hist[-1]["k"], gd_hist[-1]["logC"], "o", color="crimson", markersize=8)
     if sa_hist:
         ax2.plot([h["k"] for h in sa_hist], [h["logC"] for h in sa_hist], color="royalblue", linewidth=0.8, alpha=0.5)
-        ax2.plot(sa_hist[-1]["k"], sa_hist[-1]["logC"], "o", color="royalblue", markersize=8)
+        ax2.plot(sa_hist[-1]["k"], sa_hist[-1]["logC"], "o", color="royalblue", markersize=6, alpha=0.6)
+    if sa_best is not None:
+        ax2.plot(sa_best["k"], sa_best["logC"], "*", color="gold", markersize=18,
+                  markeredgecolor="black", markeredgewidth=0.8, label="SA bestes")
     ax2.axvline(TRUE_K, color="white", linestyle="--", linewidth=1, alpha=0.7)
     ax2.set_xlabel("k")
     ax2.set_ylabel("log C")
@@ -114,7 +122,9 @@ def draw(gd_point=None, sa_point=None, gd_hist=None, sa_hist=None, step_label=""
     if gd_hist:
         ax3.plot([h["step"] for h in gd_hist], [h["loss"] for h in gd_hist], color="crimson", label="GD")
     if sa_hist:
-        ax3.plot([h["step"] for h in sa_hist], [h["loss"] for h in sa_hist], color="royalblue", label="SA (aktuell)", alpha=0.6)
+        ax3.plot([h["step"] for h in sa_hist], [h["loss"] for h in sa_hist], color="royalblue", label="SA (aktuell, springt weiter)", alpha=0.6)
+    if sa_best is not None:
+        ax3.axhline(sa_best["loss"], color="gold", linestyle="--", linewidth=1, label="SA bestes")
     ax3.set_yscale("log")
     ax3.set_xlabel("Schritt")
     ax3.set_ylabel("Loss (log)")
@@ -149,9 +159,10 @@ if start:
         for i in frame_idx:
             gd_slice = gd_full[: i + 1]
             sa_slice = sa_full[: i + 1]
+            sa_best_so_far = min(sa_slice, key=lambda h: h["loss"])
             draw(
                 gd_point=gd_slice[-1], sa_point=sa_slice[-1],
-                gd_hist=gd_slice, sa_hist=sa_slice,
+                gd_hist=gd_slice, sa_hist=sa_slice, sa_best=sa_best_so_far,
                 step_label=f"(Schritt {gd_slice[-1]['step']}/{iterations})",
             )
             metrics_placeholder.info(
@@ -160,16 +171,24 @@ if start:
                 f"🔵 SA: k={sa_slice[-1]['k']:.2f}, Loss={sa_slice[-1]['loss']:.4f}"
             )
             time.sleep(0.03)
-    else:
-        draw(
-            gd_point=gd_full[-1], sa_point=sa_full[-1],
-            gd_hist=gd_full, sa_hist=sa_full,
-            step_label=f"(Schritt {iterations}/{iterations})",
-        )
 
     # SA-Ergebnis: bestes je gefundenes (k, logC), nicht die letzte (weiter "heiße") Position
     sa_best = min(sa_full, key=lambda h: h["loss"])
     gd_final = gd_full[-1]
+
+    if not animate:
+        draw(
+            gd_point=gd_full[-1], sa_point=sa_full[-1],
+            gd_hist=gd_full, sa_hist=sa_full, sa_best=sa_best,
+            step_label=f"(Schritt {iterations}/{iterations})",
+        )
+    else:
+        # letzter Frame nochmal mit sa_best-Stern, damit er auch bei fertiger Animation sichtbar bleibt
+        draw(
+            gd_point=gd_full[-1], sa_point=sa_full[-1],
+            gd_hist=gd_full, sa_hist=sa_full, sa_best=sa_best,
+            step_label=f"(Schritt {iterations}/{iterations})",
+        )
 
     with result_placeholder.container():
         st.subheader("📊 Ergebnis")
