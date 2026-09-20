@@ -21,8 +21,10 @@ class MLP(nn.Module):
 
     def __init__(self, hidden_size: int = 16, n_hidden_layers: int = 2):
         super().__init__()
-
+        """
         layers: list[nn.Module] = [nn.Linear(1, hidden_size), nn.ReLU()]
+        """
+        layers: list[nn.Module] = [nn.Linear(1, hidden_size), nn.TanH()]
         for _ in range(n_hidden_layers - 1):
             layers.append(nn.Linear(hidden_size, hidden_size))
             layers.append(nn.ReLU())
