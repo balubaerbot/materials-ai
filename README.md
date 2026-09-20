@@ -11,3 +11,4 @@ orchestriert via Docker Compose. Python (PyTorch) für die Logik, Streamlit für
 
 - `modules/01_single_neuron/` — Das einfachste Neuron: Werkstoffkennlinie fitten
 - `modules/02_mlp_activation/` — Mehrschichtiges Netz mit Aktivierungsfunktion (ReLU)
+- `modules/03_woehler_optimization/` — Duell der Optimierer: Gradient Descent vs. Simulated Annealing auf einer Wöhlerlinie

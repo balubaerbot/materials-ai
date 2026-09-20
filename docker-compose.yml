@@ -20,3 +20,14 @@ services:
     volumes:
       - ./modules/02_mlp_activation:/app
     restart: unless-stopped
+
+  module-03-woehler-optimization:
+    build:
+      context: ./modules/03_woehler_optimization
+      dockerfile: Dockerfile
+    container_name: materials-ai-m03
+    ports:
+      - "127.0.0.1:8503:8501"
+    volumes:
+      - ./modules/03_woehler_optimization:/app
+    restart: unless-stopped
