@@ -9,3 +9,14 @@ services:
     volumes:
       - ./modules/01_single_neuron:/app
     restart: unless-stopped
+
+  module-02-mlp-activation:
+    build:
+      context: ./modules/02_mlp_activation
+      dockerfile: Dockerfile
+    container_name: materials-ai-m02
+    ports:
+      - "127.0.0.1:8502:8501"
+    volumes:
+      - ./modules/02_mlp_activation:/app
+    restart: unless-stopped
