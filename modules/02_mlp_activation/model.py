@@ -24,11 +24,11 @@ class MLP(nn.Module):
         """
         layers: list[nn.Module] = [nn.Linear(1, hidden_size), nn.ReLU()]
         """
-        layers: list[nn.Module] = [nn.Linear(1, hidden_size), nn.tanH()]
+        layers: list[nn.Module] = [nn.Linear(1, hidden_size), nn.Tanh()]
         for _ in range(n_hidden_layers - 1):
             layers.append(nn.Linear(hidden_size, hidden_size))
             """layers.append(nn.ReLU())"""
-            layers.append(nn.tanH())
+            layers.append(nn.Tanh())
         layers.append(nn.Linear(hidden_size, 1))
 
         self.net = nn.Sequential(*layers)
