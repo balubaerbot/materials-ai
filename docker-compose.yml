@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  module-01-single-neuron:
+    build:
+      context: ./modules/01_single_neuron
+      dockerfile: Dockerfile
+    container_name: materials-ai-m01
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./modules/01_single_neuron:/app
+    restart: unless-stopped
